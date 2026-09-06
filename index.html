@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#183f2a">
-<title>Ma Serre — V4</title>
+<title>Ma Serre — V5</title>
 <style>
 :root{--green:#183f2a;--green2:#2f7250;--mint:#eaf3ec;--cream:#f7f4ec;--bg:#f4f6f1;--card:#fff;--text:#183126;--muted:#6b7b71;--line:#dfe7df;--amber:#b97723;--shadow:0 10px 30px rgba(24,63,42,.08)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding-bottom:92px}
@@ -204,8 +204,25 @@ function renderSeeds(){
  $$('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Supprimer ce lot ?')){seeds=seeds.filter(s=>s.id!==b.dataset.delete);saveSeeds()}});
  renderDashboard();
 }
+let customCrops=[];try{customCrops=JSON.parse(localStorage.getItem('serreCustomCropsV5')||'[]')}catch(e){customCrops=[]}
+function saveCustomCrops(){localStorage.setItem('serreCustomCropsV5',JSON.stringify(customCrops))}
+function cropOptions(selected){
+ const names=[...Object.keys(crops),...customCrops.map(c=>c.name).filter(n=>!crops[n])];
+ return names.map(n=>`<option${n===selected?' selected':''}>${esc(n)}</option>`).join('')+`<option value="__new__">＋ Ajouter une nouvelle culture…</option>`;
+}
+function addCustomCrop(){
+ const name=prompt('Nom de la nouvelle culture (ex. Haricot, Fenouil, Persil…) :');
+ if(!name||!name.trim())return null;
+ const clean=name.trim();
+ if(!crops[clean]&&!customCrops.some(c=>c.name.toLowerCase()===clean.toLowerCase())){
+   const place=prompt('Emplacement prévu ? (Bac, Tour, Serre, Extérieur…)','Bac')||'À définir';
+   customCrops.push({name:clean,place:place.trim()||'À définir',created:Date.now()});saveCustomCrops();
+ }
+ return customCrops.find(c=>c.name.toLowerCase()===clean.toLowerCase())?.name || clean;
+}
 const seedModal=$('#seedModal');
-$('#openSeed').onclick=()=>{$('#crop').innerHTML=Object.keys(crops).map(n=>`<option>${n}</option>`).join('');$('#seedDate').value=new Date().toISOString().slice(0,10);seedModal.classList.add('open')};
+$('#openSeed').onclick=()=>{$('#crop').innerHTML=cropOptions();$('#seedDate').value=new Date().toISOString().slice(0,10);seedModal.classList.add('open')};
+$('#crop').addEventListener('change',()=>{if($('#crop').value==='__new__'){const n=addCustomCrop();$('#crop').innerHTML=cropOptions(n||Object.keys(crops)[0]);}});
 $('#closeSeed').onclick=()=>seedModal.classList.remove('open');
 seedModal.addEventListener('click',e=>{if(e.target===seedModal)seedModal.classList.remove('open')});
 $('#seedForm').onsubmit=e=>{e.preventDefault();const created=Date.now();const st=$('#stage').value;seeds.push({id:String(created)+Math.random().toString(16).slice(2),crop:$('#crop').value,variety:$('#variety').value.trim(),date:$('#seedDate').value,qty:$('#qty').value,support:$('#support').value,stage:st,notes:$('#notes').value.trim(),created,history:[{stage:st,date:created}]});saveSeeds();e.target.reset();seedModal.classList.remove('open')};
