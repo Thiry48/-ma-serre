@@ -340,7 +340,26 @@ $('#authAction').onclick=()=>{if(sbSession){if(confirm('Se déconnecter de Ma Se
 $('#closeLogin').onclick=()=>loginModal.classList.remove('open');
 loginModal.addEventListener('click',e=>{if(e.target===loginModal)loginModal.classList.remove('open')});
 $('#loginBtn').onclick=async()=>{const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value,msg=$('#loginMsg');if(!email||!password){msg.textContent='Indiquez votre e-mail et votre mot de passe.';return}msg.textContent='Connexion en cours…';try{await loginCloud(email,password);$('#loginPassword').value='';loginModal.classList.remove('open');await loadCloud()}catch(e){msg.textContent='Erreur : '+e.message}};
-sbSession=restoreSession();sbUser=sbSession&&sbSession.user?sbSession.user:null;if(sbSession){setAuthUI('online','Vérification de la session…');setTimeout(async()=>{if(await ensureSession()){sbUser=sbSession.user;loadCloud()}},100)}else setAuthUI('local');
+async function recoverSessionFromUrl(){
+ const raw=(location.hash||'').replace(/^#/,'');
+ if(!raw)return false;
+ const p=new URLSearchParams(raw);
+ const access_token=p.get('access_token'),refresh_token=p.get('refresh_token');
+ if(!access_token||!refresh_token)return false;
+ try{
+  const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+access_token}});
+  const user=await r.json();if(!r.ok||!user||!user.id)throw new Error(user.message||'Session invalide');
+  const expires_in=Number(p.get('expires_in')||3600);
+  persistSession({access_token,refresh_token,token_type:p.get('token_type')||'bearer',expires_in,expires_at:Math.floor(Date.now()/1000)+expires_in,user});
+  history.replaceState(null,'',location.pathname+location.search);
+  setAuthUI('online','Connexion récupérée — chargement de vos données');
+  await loadCloud();return true;
+ }catch(e){console.error(e);return false}
+}
+(async()=>{
+ if(await recoverSessionFromUrl())return;
+ sbSession=restoreSession();sbUser=sbSession&&sbSession.user?sbSession.user:null;if(sbSession){setAuthUI('online','Vérification de la session…');setTimeout(async()=>{if(await ensureSession()){sbUser=sbSession.user;loadCloud()}},100)}else setAuthUI('local');
+})();
 
 })();
 </script>
