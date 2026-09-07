@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#183f2a">
-<title>Ma Serre — V7</title>
+<title>Ma Serre — V8</title>
 <style>
 :root{--green:#183f2a;--green2:#2f7250;--mint:#eaf3ec;--cream:#f7f4ec;--bg:#f4f6f1;--card:#fff;--text:#183126;--muted:#6b7b71;--line:#dfe7df;--amber:#b97723;--shadow:0 10px 30px rgba(24,63,42,.08)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;min-height:100vh;padding-bottom:92px}
@@ -41,11 +41,24 @@
 .authdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#b5bdb7;margin-right:6px}.authdot.online{background:#2f7250}.authdot.syncing{background:#b97723}
 .authbtn{border:1px solid #cad8cd;background:#fff;color:var(--text);padding:8px 10px;border-radius:10px;font-size:11px;font-weight:850}.cloudnote{font-size:11px;color:var(--muted);margin-top:8px}
 
+
+.photochoices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.photochoice{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #cad8cd;background:#fff;color:var(--text);padding:13px 10px;border-radius:14px;font-weight:850;cursor:pointer}
+.photochoice.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.seedcard{cursor:pointer}.seedcard .mini-actions button,.seedcard details{cursor:pointer}
+.seed-detail-head{background:var(--mint);border-radius:16px;padding:14px;margin:12px 0}
+.seed-detail-head h3{margin:0 0 5px}.seed-detail-head p{margin:3px 0;font-size:12px;color:var(--muted)}
+.seedphotos{display:grid;gap:12px;margin-top:12px}.seedphoto{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+.seedphoto img{width:100%;max-height:420px;object-fit:cover;display:block}.seedphoto-body{padding:13px}
+.seedphoto-date{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:7px}
+.seedphoto-note{font-size:12px;line-height:1.45;margin:7px 0}.seedphoto-ai{background:#eef4ff;border:1px solid #d7e2f6;border-radius:13px;padding:11px;margin-top:9px}
+.seedphoto-ai b{display:block;margin-bottom:5px}.seedphoto-ai div{white-space:pre-wrap;font-size:12px;line-height:1.45;color:#53627a}
+@media(max-width:520px){.photochoices{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="topline"><div class="brand"><div class="brandmark">🌿</div><div><b>Ma Serre</b><small>Suivi intelligent de la serre • V7</small></div></div><div class="today" id="today"></div></div></header>
+<header class="top"><div class="topline"><div class="brand"><div class="brandmark">🌿</div><div><b>Ma Serre</b><small>Suivi intelligent de la serre • V8</small></div></div><div class="today" id="today"></div></div></header>
 <div class="authbar" id="authBar"><div class="authstate"><span class="authdot" id="authDot"></span><b id="authLabel">Mode local</b><br><span id="authSub">Connexion Supabase non établie</span></div><button class="authbtn" id="authAction">Se connecter</button></div>
 
 <main>
@@ -81,7 +94,15 @@
     <div class="field"><label>Stade observé</label><select id="photoStage"><option>Levée</option><option>Premières vraies feuilles</option><option>Prêt à rempoter</option><option>En godet</option><option>Prêt à acclimater</option><option>Acclimatation</option><option>Planté en serre</option><option>Problème / maladie</option></select></div>
     <div class="field full"><label>Votre observation ou question</label><textarea id="photoNote" placeholder="Ex. Les feuilles sont un peu pâles. Est-ce normal ?"></textarea></div>
   </div>
-  <div class="photozone" id="photoZone"><label for="cameraInput" class="camera">📷</label><div><b>Prendre une photo</b><br><span style="font-size:12px;color:var(--muted)">Sur iPhone, cela peut ouvrir directement l’appareil photo.</span></div><input id="cameraInput" type="file" accept="image/*" capture="environment"><img id="photoPreview" class="photoPreview" alt="Aperçu"></div>
+  <div class="photozone" id="photoZone">
+    <div class="photochoices">
+      <label for="cameraInput" class="photochoice primary">📷 Prendre une photo</label>
+      <label for="libraryInput" class="photochoice">🖼️ Choisir dans la photothèque</label>
+    </div>
+    <input id="cameraInput" type="file" accept="image/*" capture="environment">
+    <input id="libraryInput" type="file" accept="image/*">
+    <img id="photoPreview" class="photoPreview" alt="Aperçu">
+  </div>
   <div class="btnrow"><button class="btn primary" id="savePhoto">Enregistrer dans le suivi</button><button class="btn" id="askAI">✨ Demander un avis</button></div>
   <div class="aiBox" id="aiBox"><h3>✨ Avis IA dans Ma Serre</h3><p>Prenez une photo, ajoutez si besoin une observation, puis touchez « Demander un avis ». L’analyse s’affichera directement ici.</p></div>
 </div>
@@ -99,10 +120,11 @@
 <nav class="bottom"><button class="nav active" data-go="home"><span>⌂</span>Accueil</button><button class="nav" data-go="seeds"><span>🌱</span>Semis</button><button class="nav" data-go="photo"><span>📷</span>Photos</button><button class="nav" data-go="calendar"><span>📅</span>Planning</button></nav>
 
 
-<div class="modal" id="loginModal"><div class="sheet"><div class="sheethead"><h2>Connexion Ma Serre</h2><button class="x" id="closeLogin">×</button></div><div class="panel" style="margin-top:14px"><p style="font-size:12px;color:var(--muted);line-height:1.45">Connectez-vous avec l’e-mail et le mot de passe de l’utilisateur créé dans Supabase.</p><div class="formgrid"><div class="field full"><label>E-mail</label><input id="loginEmail" type="email" autocomplete="email" placeholder="votre@email.be"></div><div class="field full"><label>Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div></div><div class="btnrow"><button class="btn primary" id="loginBtn">Se connecter</button></div><div class="cloudnote" id="loginMsg">Les semis et cultures personnalisées seront sauvegardés en ligne. Les photos restent locales sur cet appareil dans cette V7.</div></div></div></div>
+<div class="modal" id="loginModal"><div class="sheet"><div class="sheethead"><h2>Connexion Ma Serre</h2><button class="x" id="closeLogin">×</button></div><div class="panel" style="margin-top:14px"><p style="font-size:12px;color:var(--muted);line-height:1.45">Connectez-vous avec l’e-mail et le mot de passe de l’utilisateur créé dans Supabase.</p><div class="formgrid"><div class="field full"><label>E-mail</label><input id="loginEmail" type="email" autocomplete="email" placeholder="votre@email.be"></div><div class="field full"><label>Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div></div><div class="btnrow"><button class="btn primary" id="loginBtn">Se connecter</button></div><div class="cloudnote" id="loginMsg">Les semis et cultures personnalisées seront sauvegardés en ligne. Les photos restent locales sur cet appareil dans cette V8.</div></div></div></div>
 <div class="modal" id="seedModal"><div class="sheet"><div class="sheethead"><h2 id="seedModalTitle">Nouveau semis</h2><button class="x" id="closeSeed">×</button></div><form id="seedForm"><div class="formgrid" style="margin-top:14px">
 <div class="field"><label>Culture</label><select id="crop" required></select></div><div class="field"><label>Variété</label><input id="variety" placeholder="Ex. Noire de Crimée"></div><div class="field"><label>Date du semis</label><input id="seedDate" type="date" required></div><div class="field"><label>Quantité</label><input id="qty" type="number" min="1" value="12"></div><div class="field"><label>Support</label><select id="support"><option>Alvéoles sous LED</option><option>Plug hydroponique</option><option>Godet individuel</option><option>Semis direct en bac</option></select></div><div class="field"><label>Stade</label><select id="stage"><option>Semé</option><option>Levée</option><option>2–3 vraies feuilles</option><option>Godet 8–10 cm</option><option>Godet 12–14 cm</option><option>Acclimatation</option><option>Planté</option></select></div><div class="field full"><label>Notes</label><textarea id="notes" placeholder="Ex. plateau niveau 2 de l’étagère LED"></textarea></div></div><div class="btnrow"><button class="btn primary" type="submit">Enregistrer</button></div></form></div></div>
 
+<div class="modal" id="seedDetailModal"><div class="sheet"><div class="sheethead"><h2>Détail du semis</h2><button class="x" id="closeSeedDetail">×</button></div><div id="seedDetailContent"></div></div></div>
 <div class="modal" id="stageModal"><div class="sheet"><div class="sheethead"><h2>Mettre à jour le stade</h2><button class="x" id="closeStage">×</button></div><div class="field" style="margin-top:14px"><label>Nouveau stade</label><select id="newStage"><option>Semé</option><option>Levée</option><option>2–3 vraies feuilles</option><option>Godet 8–10 cm</option><option>Godet 12–14 cm</option><option>Acclimatation</option><option>Planté</option></select></div><div class="hint" id="stageAdvice"></div><div class="btnrow"><button class="btn primary" id="saveStage">Mettre à jour</button></div></div></div>
 
 <script>
@@ -203,11 +225,12 @@ function renderSeeds(){
  $('#seedList').innerHTML=seeds.slice().sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).map(s=>{
    const idx=Math.max(0,stageOrder.indexOf(s.stage)), pct=Math.round((idx/(stageOrder.length-1))*100);
    const hist=(s.history||[]).slice().reverse().map(h=>`<div class="historyline">${new Date(h.date).toLocaleDateString('fr-BE')} — ${esc(h.stage)}</div>`).join('');
-   return `<div class="seedcard"><div class="seedtop"><div><h3>${crops[s.crop]?crops[s.crop].icon:'🌱'} ${esc(s.crop)}${s.variety?' — '+esc(s.variety):''}</h3><div class="meta">Semé le ${new Date(s.date+'T12:00:00').toLocaleDateString('fr-BE')} • J+${daysSince(s.date)} • ${esc(s.qty)} plants<br>${esc(s.support)}${s.notes?'<br>'+esc(s.notes):''}</div><span class="stage">${esc(s.stage)}</span><div class="progress"><i style="width:${pct}%"></i></div></div></div>
+   return `<div class="seedcard" data-seed-card="${s.id}"><div class="seedtop"><div><h3>${crops[s.crop]?crops[s.crop].icon:'🌱'} ${esc(s.crop)}${s.variety?' — '+esc(s.variety):''}</h3><div class="meta">Semé le ${new Date(s.date+'T12:00:00').toLocaleDateString('fr-BE')} • J+${daysSince(s.date)} • ${esc(s.qty)} plants<br>${esc(s.support)}${s.notes?'<br>'+esc(s.notes):''}</div><span class="stage">${esc(s.stage)}</span><div class="progress"><i style="width:${pct}%"></i></div></div></div>
    <div class="nextaction"><b>👉 Prochaine action</b><span>${esc(nextAction(s))}</span></div>
    <div class="mini-actions"><button class="mini" data-edit="${s.id}">✏️ Modifier</button><button class="mini" data-stage="${s.id}">Changer le stade</button><button class="mini" data-photo="${s.id}">📷 Ajouter une photo</button><button class="mini" data-delete="${s.id}">Supprimer</button></div>
    <details class="history"><summary>Voir l’historique</summary>${hist||'<div class="historyline">Pas encore d’historique.</div>'}</details></div>`;
  }).join('');
+ $$('[data-seed-card]').forEach(card=>card.onclick=(e)=>{if(e.target.closest('button,details,summary'))return;openSeedDetail(card.dataset.seedCard)});
  $$('[data-edit]').forEach(b=>b.onclick=()=>openEditSeed(b.dataset.edit));
  $$('[data-stage]').forEach(b=>b.onclick=()=>openStage(b.dataset.stage));
  $$('[data-photo]').forEach(b=>b.onclick=()=>{go('photo');refreshPhotoSeeds(b.dataset.photo)});
@@ -269,12 +292,32 @@ $('#importData').addEventListener('change',e=>{
  const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!Array.isArray(d.seeds))throw new Error();if(!confirm('Remplacer les données actuelles par cette sauvegarde ?'))return;seeds=d.seeds||[];photos=d.photos||[];saveSeeds();savePhotos();alert('Sauvegarde restaurée.')}catch(err){alert('Ce fichier de sauvegarde n’est pas valide.')}};r.readAsText(f);
 });
 function refreshPhotoSeeds(selectId){const sel=$('#photoSeed');if(!seeds.length){sel.innerHTML='<option value="">Aucun lot — créez d’abord un semis</option>'}else{sel.innerHTML=seeds.map(s=>`<option value="${s.id}">${esc(s.crop)}${s.variety?' — '+esc(s.variety):''}</option>`).join('');if(selectId)sel.value=selectId}}
-let currentPhotoData='';$('#cameraInput').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=ev=>{currentPhotoData=ev.target.result;$('#photoPreview').src=currentPhotoData;$('#photoPreview').classList.add('show')};reader.readAsDataURL(f)});
+let currentPhotoData='',currentAIAdvice='',currentPhotoSavedId='';
+function loadSelectedPhoto(e){const f=e.target.files&&e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=ev=>{currentPhotoData=ev.target.result;currentAIAdvice='';currentPhotoSavedId='';$('#photoPreview').src=currentPhotoData;$('#photoPreview').classList.add('show');$('#aiBox').innerHTML='<h3>✨ Avis IA dans Ma Serre</h3><p>Photo prête. Ajoutez si besoin une observation, puis touchez « Demander un avis ».</p>'};reader.readAsDataURL(f)}
+$('#cameraInput').addEventListener('change',loadSelectedPhoto);
+$('#libraryInput').addEventListener('change',loadSelectedPhoto);
 let photos=[];try{photos=JSON.parse(localStorage.getItem('serrePhotosV3')||'[]')}catch(e){photos=[]}
 function savePhotos(){try{localStorage.setItem('serrePhotosV3',JSON.stringify(photos))}catch(e){alert('Le stockage local de votre navigateur est plein. Une version en ligne utilisera un vrai stockage de photos.');}renderPhotos()}
-function renderPhotos(){if(!photos.length){$('#photoTimeline').innerHTML='<div class="empty">Aucune photo enregistrée pour l’instant.</div>';return}$('#photoTimeline').innerHTML=photos.slice().sort((a,b)=>b.created-a.created).map(p=>{const s=seeds.find(x=>x.id===p.seedId);return `<div class="shot"><img src="${p.data}" alt="Photo du semis"><div><h4>${s?esc(s.crop)+(s.variety?' — '+esc(s.variety):''):'Lot supprimé'}</h4><p><b>${esc(p.stage)}</b> • ${new Date(p.created).toLocaleDateString('fr-BE')}</p><p>${esc(p.note||'Aucune note')}</p></div></div>`}).join('')}
+function renderPhotos(){if(!photos.length){$('#photoTimeline').innerHTML='<div class="empty">Aucune photo enregistrée pour l’instant.</div>';return}$('#photoTimeline').innerHTML=photos.slice().sort((a,b)=>b.created-a.created).map(p=>{const s=seeds.find(x=>x.id===p.seedId);return `<div class="shot"><img src="${p.data}" alt="Photo du semis"><div><h4>${s?esc(s.crop)+(s.variety?' — '+esc(s.variety):''):'Lot supprimé'}</h4><p><b>${esc(p.stage)}</b> • ${new Date(p.created).toLocaleDateString('fr-BE')}</p><p>${esc(p.note||'Aucune note')}</p>${p.aiAdvice?'<p><b>✨ Avis IA enregistré</b></p>':''}</div></div>`}).join('')}
+function openSeedDetail(id){
+ const s=seeds.find(x=>x.id===id);if(!s)return;
+ const ps=photos.filter(p=>p.seedId===id).sort((a,b)=>b.created-a.created);
+ const hist=(s.history||[]).slice().reverse().map(h=>`<div class="historyline">${new Date(h.date).toLocaleDateString('fr-BE')} — ${esc(h.stage)}</div>`).join('');
+ $('#seedDetailContent').innerHTML=`<div class="seed-detail-head"><h3>${crops[s.crop]?crops[s.crop].icon:'🌱'} ${esc(s.crop)}${s.variety?' — '+esc(s.variety):''}</h3><p><b>Semé le :</b> ${new Date(s.date+'T12:00:00').toLocaleDateString('fr-BE')} • J+${daysSince(s.date)}</p><p><b>Quantité :</b> ${esc(s.qty)} • <b>Support :</b> ${esc(s.support)}</p><p><b>Stade :</b> ${esc(s.stage)}</p>${s.notes?'<p><b>Notes :</b> '+esc(s.notes)+'</p>':''}</div><div class="history"><b>Historique des stades</b>${hist||'<div class="historyline">Pas encore d’historique.</div>'}</div><div class="sectionhead"><div><h2>Photos & avis IA</h2><p>${ps.length} photo${ps.length>1?'s':''} pour ce semis</p></div></div><div class="seedphotos">${ps.length?ps.map(p=>`<div class="seedphoto"><img src="${p.data}" alt="Photo du semis"><div class="seedphoto-body"><div class="seedphoto-date">${new Date(p.created).toLocaleString('fr-BE')} • ${esc(p.stage||'')}</div>${p.note?'<div class="seedphoto-note"><b>Observation :</b> '+esc(p.note)+'</div>':''}${p.aiAdvice?'<div class="seedphoto-ai"><b>✨ Avis de l’IA</b><div>'+esc(p.aiAdvice)+'</div></div>':'<div class="seedphoto-note">Aucun avis IA enregistré pour cette photo.</div>'}</div></div>`).join(''):'<div class="empty">Aucune photo enregistrée pour ce semis.</div>'}</div>`;
+ $('#seedDetailModal').classList.add('open');
+}
+$('#closeSeedDetail').onclick=()=>$('#seedDetailModal').classList.remove('open');
+$('#seedDetailModal').onclick=e=>{if(e.target.id==='seedDetailModal')$('#seedDetailModal').classList.remove('open')};
 renderPhotos();refreshPhotoSeeds();renderSeeds();renderDashboard();
-$('#savePhoto').onclick=()=>{if(!$('#photoSeed').value){alert('Créez d’abord un lot de semis.');return}if(!currentPhotoData){alert('Prenez ou choisissez d’abord une photo.');return}photos.push({id:String(Date.now()),seedId:$('#photoSeed').value,stage:$('#photoStage').value,note:$('#photoNote').value.trim(),data:currentPhotoData,created:Date.now()});savePhotos();currentPhotoData='';$('#photoPreview').src='';$('#photoPreview').classList.remove('show');$('#cameraInput').value='';$('#photoNote').value='';alert('Photo ajoutée au suivi.')};
+function saveCurrentPhoto(showAlert=true){
+ if(!$('#photoSeed').value){alert('Créez d’abord un lot de semis.');return false}
+ if(!currentPhotoData){alert('Prenez ou choisissez d’abord une photo.');return false}
+ let p=currentPhotoSavedId&&photos.find(x=>x.id===currentPhotoSavedId);
+ if(p){p.seedId=$('#photoSeed').value;p.stage=$('#photoStage').value;p.note=$('#photoNote').value.trim();p.aiAdvice=currentAIAdvice||p.aiAdvice||''}
+ else{p={id:String(Date.now()),seedId:$('#photoSeed').value,stage:$('#photoStage').value,note:$('#photoNote').value.trim(),data:currentPhotoData,aiAdvice:currentAIAdvice||'',created:Date.now()};photos.push(p);currentPhotoSavedId=p.id}
+ savePhotos();if(showAlert)alert('Photo ajoutée au suivi.');return true
+}
+$('#savePhoto').onclick=()=>{if(!saveCurrentPhoto(true))return;currentPhotoData='';currentAIAdvice='';currentPhotoSavedId='';$('#photoPreview').src='';$('#photoPreview').classList.remove('show');$('#cameraInput').value='';$('#libraryInput').value='';$('#photoNote').value=''};
 function aiHtml(text){return '<h3>✨ Avis de l’IA</h3><p style="white-space:pre-wrap">'+esc(text)+'</p>'}
 $('#askAI').onclick=async()=>{
  const s=seeds.find(x=>x.id===$('#photoSeed').value);
@@ -285,7 +328,9 @@ $('#askAI').onclick=async()=>{
  try{
    const r=await sbFetch('/functions/v1/analyse-serre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:currentPhotoData,crop:s.crop,variety:s.variety||'',seedDate:s.date||'',stage:$('#photoStage').value,note:$('#photoNote').value.trim()})});
    const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||d.message||'Analyse impossible');
-   $('#aiBox').innerHTML=aiHtml(d.advice||'Aucun avis reçu.');
+   currentAIAdvice=d.advice||'Aucun avis reçu.';
+   $('#aiBox').innerHTML=aiHtml(currentAIAdvice);
+   saveCurrentPhoto(false);
  }catch(e){console.error(e);$('#aiBox').innerHTML='<h3>⚠️ Analyse indisponible</h3><p>'+esc(e.message)+'<br>Vérifiez que la fonction Supabase « analyse-serre » et le secret OPENAI_API_KEY sont installés.</p>'}
  finally{$('#askAI').disabled=false}
 };
